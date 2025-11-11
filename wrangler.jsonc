@@ -8,7 +8,7 @@
 	"main": "worker/index.ts",
 	"compatibility_date": "2025-11-07",
 	"assets": {
-		"not_found_handling": "single-page-application"
+        "not_found_handling": "single-page-application"
 	},
 	"observability": {
 		"enabled": true
@@ -19,7 +19,13 @@
 			"database_name": "app-db",
 			"database_id": "2a2ed8a4-488c-409f-95ec-0c58d6ab9a56"
 		}
-	]
+	],
+    "triggers": {
+      "crons": [
+        "0 * * * *"
+      ]
+    }
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
