@@ -1,9 +1,10 @@
+import type {StationTableUpsert, StationTableTuple} from "../../types/StationTable.ts";
+
 export function stations(db:D1Database) {
     // upsert tuples
     // - if station_id exists, update existing tuple
     // - if station_id is new, insert tuple
-    async function upsert(a0: string, a1: string, a2: string, a3: string, a4: string,
-                          a5: string, a6: string, a7: string, a8: string, a9: string) {
+    async function upsert(s:StationTableUpsert): Promise<void> {
         await db
             .prepare(
                 "INSERT INTO " +
@@ -21,8 +22,19 @@ export function stations(db:D1Database) {
                 "forecast = excluded.forecast, " +
                 "note = excluded.note, " +
                 "last_updated = excluded.last_updated")
-            .bind(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+            .bind(s.station_id, s.owner, s.ttype, s.hull, s.name, s.payload, s.location, s.timezone, s.forecast, s.note)
             .run();
     }
-    return {upsert};
+
+    // returns all existing stations in stations table
+    async function getAll():Promise<StationTableTuple[]> {
+        const res = await db
+            .prepare(
+                "SELECT *" +
+                "FROM stations")
+            .all<StationTableTuple>();
+        return res?.results ?? [];
+    }
+
+    return {upsert, getAll};
 }
