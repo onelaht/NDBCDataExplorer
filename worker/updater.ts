@@ -1,4 +1,3 @@
-import type {StationTableUpsert} from "../types/StationTable.ts";
 // db access
 import {stations} from "./db/stations.ts";
 
@@ -9,35 +8,16 @@ export function updater(db:D1Database) {
     // fetch station and upsert to db
     async function updateStation (){
         // get station tuples
-        const tup = await getStationTable();
-        // assign each tuple to table
-        for(let i = 2; i < tup.length; i++) {
-            const att = tup[i].split('|');
-            if(att.length == 10) {
-                const upsert:StationTableUpsert = {
-                    station_id: att[0],
-                    owner: att[1],
-                    ttype: att[2],
-                    hull: att[3],
-                    name: att[4],
-                    payload: att[5],
-                    location: att[6],
-                    timezone: att[7],
-                    forecast: att[8],
-                    note: att[9]
-                }
-                await db_stations.upsert(upsert);
-            }
-        }
+        const tuples = await getStationTable();
+        // pass station to batcher
+        await db_stations.batchUpsert(tuples);
     }
     return {updateStation};
 }
 
-/*
-------------------------------------------
-    helpers
------------------------wrangler-------------------
-*/
+//--------------------------------
+//    helpers
+//--------------------------------
 
 // fetches station tables from JDBC
 // returns data as an array of split tuples
