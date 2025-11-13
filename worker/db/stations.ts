@@ -1,12 +1,14 @@
-import type {StationTableUpsert, StationTableTuple} from "../../types/StationTable.ts";
+import type {StationTable} from "../../types/StationTable.ts";
 
 export function stations(db:D1Database) {
     // upsert tuples
     // - if station_id exists, update existing tuple
     // - if station_id is new, insert tuple
-    async function upsert(s:StationTableUpsert): Promise<void> {
-        await db
-            .prepare(
+    async function batchUpsert(tuples:string[]): Promise<void> {
+        // var for storing queries
+        const queries:D1PreparedStatement[] = [];
+        // prepare statement for upsert
+        const req = db.prepare(
                 "INSERT INTO " +
                 "stations (station_id, owner, ttype, hull, name, payload, location, timezone, forecast, note, last_updated)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp)" +
@@ -22,19 +24,28 @@ export function stations(db:D1Database) {
                 "forecast = excluded.forecast, " +
                 "note = excluded.note, " +
                 "last_updated = excluded.last_updated")
-            .bind(s.station_id, s.owner, s.ttype, s.hull, s.name, s.payload, s.location, s.timezone, s.forecast, s.note)
-            .run();
+        // bind each tuples
+        for(let i = 2; i < tuples.length; i++) {
+            const att:string[] = tuples[i].split("|");
+            if(att.length == 10)
+                queries.push(req.bind(att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7], att[8], att[9]));
+        }
+        // set chunk size as 50
+        const chunkSize = 50;
+        // request batch based on number of chunk size
+        for(let i = 0; i < queries.length; i+=chunkSize) {
+            const chunk = queries.slice(i, i + chunkSize);
+            await db.batch(chunk);
+        }
     }
-
     // returns all existing stations in stations table
-    async function getAll():Promise<StationTableTuple[]> {
+    async function getAll():Promise<StationTable[]> {
         const res = await db
             .prepare(
                 "SELECT *" +
                 "FROM stations")
-            .all<StationTableTuple>();
+            .all<StationTable>();
         return res?.results ?? [];
     }
-
-    return {upsert, getAll};
+    return {batchUpsert, getAll};
 }
