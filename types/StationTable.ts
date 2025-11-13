@@ -1,4 +1,4 @@
-export type StationTableUpsert = {
+export type StationTable = {
     station_id: string;
     owner: string;
     ttype: string;
@@ -9,8 +9,5 @@ export type StationTableUpsert = {
     timezone: string;
     forecast: string;
     note: string;
-}
-
-export type StationTableTuple = StationTableUpsert & {
     timestamp: string;
 }
