@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS stations;
+DROP Table IF EXISTS stations_owner;
 
 CREATE TABLE IF NOT EXISTS stations (
     station_id TEXT PRIMARY KEY,
@@ -11,5 +11,12 @@ CREATE TABLE IF NOT EXISTS stations (
     timezone TEXT,
     forecast TEXT,
     note TEXT,
+    last_updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS stations_owner (
+    code TEXT PRIMARY KEY,
+    name TEXT,
+    country_code TEXT,
     last_updated TIMESTAMP
 );

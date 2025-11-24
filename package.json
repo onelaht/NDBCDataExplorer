@@ -12,7 +12,13 @@
 		"cf-typegen": "wrangler types"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.1",
+		"@mui/icons-material": "^7.3.5",
+		"@mui/material": "^7.3.5",
+		"flexlayout-react": "^0.8.17",
 		"leaflet": "^1.9.4",
+		"lodash": "^4.17.21",
 		"react": "^19.0.0-rc.1",
 		"react-dom": "^19.0.0-rc.1",
 		"react-leaflet": "^5.0.0-rc.2"

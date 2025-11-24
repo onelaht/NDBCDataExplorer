@@ -1,46 +1,44 @@
 // react
-import {useEffect, useState} from "react";
-// types
-import type {StationTable} from "../types/StationTable.ts";
-// react leaflet components
-import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
-// leaflet types
-import type {LatLngExpression} from "leaflet";
-// leaflet styling
-import 'leaflet/dist/leaflet.css'
+import {useState} from "react";
+// flexlayout
+import {Layout, Model} from 'flexlayout-react'
+import 'flexlayout-react/style/light.css';
+// flexlayout types
+import {TabNode} from "flexlayout-react";
+// flexlayout template
+import {Layout1} from "./FLTemplates/Layout1.ts";
+// split components
+import MapLayer from "./FLComponents/MapLayer.tsx";
+import ProviderApp from "./Providers/ProviderApp.tsx";
+import Filters from "./FLComponents/Filters.tsx";
 
-export default function App() {
-    // array of station metadata
-    const [stations, setStations] = useState<StationTable[]>([]);
 
-    // initialize stations arr by fetching station_table db
-    const fetchStations = async() => {
-        // fetch via endpoint
-        const res = await fetch(`/api/stations/`)
-        if(!res.ok) {
-            throw new Error("Failed to fetch stations.");
+function AppInner() {
+    const [model] = useState<Model>(Model.fromJson(Layout1));
+
+    const factory = (node:TabNode) => {
+        const component = node.getComponent();
+        if(component === "Map")
+            return <MapLayer/>
+        if(component === "Filters")
+            return <Filters/>
+        if(component === "Placeholder") {
+            return <div>{node.getName()}</div>
         }
-        const result = await res.json();
-        // assign data
-        setStations(result);
     }
 
-    // run fetcher at start
-    useEffect(() => {
-        fetchStations();
-    }, [])
-
     return (
-            <MapContainer center={[51, -0]} zoom={13} style={{width: "100vw", height: "100vh"}}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {stations.length >= 1 && stations?.map((s) => (
-                    <Marker position={s.location as LatLngExpression}>
-                        <Popup>Station Name: {s.name}</Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
+        <Layout
+            model={model}
+            factory={factory}
+        />
+    )
+}
+
+export default function App() {
+    return (
+        <ProviderApp>
+            <AppInner/>
+        </ProviderApp>
     )
 }

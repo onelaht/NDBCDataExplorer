@@ -1,13 +1,13 @@
 export type StationTable = {
     station_id: string;
-    owner: string;
     ttype: string;
     hull: string;
-    name: string;
+    station_name: string;
     payload: string;
     location: string | number[];
     timezone: string;
     forecast: string;
-    note: string;
-    timestamp: string;
+    code: string,
+    owner_name: string;
+    country_code: string;
 }

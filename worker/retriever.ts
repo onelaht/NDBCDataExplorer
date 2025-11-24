@@ -1,16 +1,11 @@
-// db access
-import {stations} from "./db/stations.ts";
 // types
 import type {StationTable} from "../types/StationTable.ts";
 
 export function retriever(db:D1Database) {
-    // initialize stations table
-    const db_stations = stations(db);
-
     // extract stations and normalize location
     async function retrieveStations():Promise<StationTable[]> {
         // get all tuples from station table
-        const stations:StationTable[] = await db_stations.getAll();
+        const stations:StationTable[] = await getStationsData(db);
         // traverse through all stations and normalize location
         stations.forEach((s) => {
             s.location = normalizeLocation(s.location as string);
@@ -18,13 +13,45 @@ export function retriever(db:D1Database) {
         return stations;
     }
 
-    // convert location to lat/lon
-     function normalizeLocation(location:string):number[] {
-        const splitData = location.split(" ");
-        const lat = parseFloat(splitData[0]);
-        const lon = parseFloat(splitData[2]);
-        return [splitData[1] === "N" ? lat : -lat, splitData[3] === "E" ? lon : -lon]
+    // retrieve unique (no dups) country code
+    async function getUniqueCountries():Promise<Array<StationTable["country_code"]>> {
+        const res = await db.prepare(
+            "SELECT DISTINCT country_code FROM stations_owner").all<StationTable["country_code"]>();
+        return res?.results ?? [];
     }
 
-    return {retrieveStations};
+    // retrieve unique (no dups) owner data
+    async function getUniqueOwners():Promise<Array<Pick<StationTable, "code" | "owner_name">>> {
+        const res = await db.prepare(
+            "SELECT DISTINCT code, name FROM stations_owner").all<Pick<StationTable, "code" | "owner_name">>();
+        return res?.results ?? [];
+    }
+
+
+    return {retrieveStations, getUniqueCountries, getUniqueOwners};
+}
+
+//--------------------------------
+//    helpers
+//--------------------------------
+
+// convert location to lat/lon
+function normalizeLocation(location:string):number[] {
+    const splitData = location.split(" ");
+    const lat = parseFloat(splitData[0]);
+    const lon = parseFloat(splitData[2]);
+    return [splitData[1] === "N" ? lat : -lat, splitData[3] === "E" ? lon : -lon]
+}
+
+// retrieve station owners and stations table
+async function getStationsData(db:D1Database):Promise<StationTable[]> {
+    const res = await db.prepare(
+        "SELECT s.station_id, s.ttype, s.hull, s.name AS station_name, s.payload, s.location, " +
+        "s.timezone, s.forecast, ss.code, ss.name AS owner_name, ss.country_code " +
+        "FROM stations AS s " +
+        "JOIN stations_owner AS ss " +
+        "ON s.owner = ss.code"
+    ).all<StationTable>();
+
+    return res?.results ?? [];
 }
