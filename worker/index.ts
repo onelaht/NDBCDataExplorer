@@ -1,5 +1,6 @@
 import {updater} from "./updater.ts";
 import {retriever} from "./retriever.ts";
+import type {StationData} from "../types/StationData.ts";
 
 // access to cloudflare dbs
 type Env = {
@@ -16,7 +17,11 @@ export default {
     // retrieve stations_table
     if(path === "/api/stations/" && method === "GET") {
         const r = retriever(env.app_db);
-        const test = await r.retrieveStations()
+        const test:StationData = {
+            stations: await r.retrieveStations(),
+            uCountries: await r.getUniqueCountries(),
+            uOwners: await r.getUniqueOwners()
+        }
         return new Response(JSON.stringify(test), {
             status: 200,
             headers: {"Context-Type": "application/json"}
