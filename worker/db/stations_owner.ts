@@ -14,7 +14,10 @@ export function stations_owner(db:D1Database) {
             "code = excluded.code, " +
             "name = excluded.name, " +
             "country_code = excluded.country_code, " +
-            "last_updated = last_updated")
+            "last_updated = last_updated " +
+            "WHERE " +
+            "stations_owner.name IS DISTINCT FROM excluded.name OR " +
+            "stations_owner.country_code IS DISTINCT FROM excluded.country_code")
         // bind each tuples
         for(let i = 2; i < tuples.length; i++) {
             const att:string[] = tuples[i].split("|");

@@ -23,7 +23,16 @@ export function stations(db:D1Database) {
                 "timezone = excluded.timezone, " +
                 "forecast = excluded.forecast, " +
                 "note = excluded.note, " +
-                "last_updated = excluded.last_updated")
+                "last_updated = excluded.last_updated " +
+                "WHERE " +
+                "stations.owner IS DISTINCT FROM excluded.owner OR " +
+                "stations.ttype IS DISTINCT FROM excluded.ttype OR " +
+                "stations.hull IS DISTINCT FROM excluded.hull OR " +
+                "stations.name IS DISTINCT FROM excluded.name OR " +
+                "stations.payload IS DISTINCT FROM excluded.payload OR " +
+                "stations.timezone IS DISTINCT FROM excluded.timezone OR " +
+                "stations.forecast IS DISTINCT FROM excluded.forecast OR " +
+                "stations.note IS DISTINCT FROM excluded.note")
         // bind each tuples
         for(let i = 2; i < tuples.length; i++) {
             const att:string[] = tuples[i].split("|");
