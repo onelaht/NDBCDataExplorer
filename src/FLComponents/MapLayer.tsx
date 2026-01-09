@@ -8,12 +8,17 @@ import L from "leaflet";
 // leaflet styling
 import 'leaflet/dist/leaflet.css'
 import {useStations} from "../Providers/ProviderStations.tsx";
+// react router
+import {useNavigate} from "react-router-dom";
 // type
 import type {StationData} from "../../types/StationData.ts";
 // google svg icon
 import SupportIcon from "../SVGIcons/MUI_Support_B89230.svg"
 import type {StationTable} from "../../types/StationTable.ts";
+
 export default function MapLayer() {
+    // route to specific station id
+    const nav = useNavigate();
     // global vars
     const {setStations, setUniqueOwners, setSelCountries,
         setSelOwners, setUniqueCountries, filteredStations} = useStations();
@@ -83,7 +88,15 @@ export default function MapLayer() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {filteredStations.length >= 1 && filteredStations?.map((s) => (
-                <Marker icon={muiMarkerIcon} position={s.location as LatLngExpression}>
+                <Marker
+                    icon={muiMarkerIcon}
+                    position={s.location as LatLngExpression}
+                    eventHandlers={{
+                        click: () => {
+                            nav(`/${s.station_id}`)
+                        }
+                    }}
+                >
                     <Popup>Station Name: {s.station_name}</Popup>
                 </Marker>
             ))}
