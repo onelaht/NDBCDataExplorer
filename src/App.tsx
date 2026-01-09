@@ -7,10 +7,13 @@ import 'flexlayout-react/style/light.css';
 import {TabNode} from "flexlayout-react";
 // flexlayout template
 import {Layout1} from "./FLTemplates/Layout1.ts";
+// react router
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 // split components
 import MapLayer from "./FLComponents/MapLayer.tsx";
 import ProviderApp from "./Providers/ProviderApp.tsx";
 import Filters from "./FLComponents/Filters.tsx";
+import StationData from "./FLComponents/StationData.tsx";
 
 
 function AppInner() {
@@ -22,16 +25,32 @@ function AppInner() {
             return <MapLayer/>
         if(component === "Filters")
             return <Filters/>
+        if(component === "StationData")
+            return <StationData/>
         if(component === "Placeholder") {
             return <div>{node.getName()}</div>
         }
     }
 
     return (
-        <Layout
-            model={model}
-            factory={factory}
-        />
+        <Router>
+            <Routes>
+                <Route path="/" element={
+                    <Layout
+                        model={model}
+                        factory={factory}
+                    />
+                }
+                />
+                <Route path="/:sID" element={
+                    <Layout
+                        model={model}
+                        factory={factory}
+                    />
+                }
+               />
+            </Routes>
+        </Router>
     )
 }
 

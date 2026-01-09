@@ -22,12 +22,23 @@ export const Layout1:IJsonModel =  {
         children: [
             {
                 type: "tabset",
-                weight: 100,
+                weight: 55,
                 children: [
                     {
                         type: "tab",
                         name: "Map",
                         component: "Map",
+                    }
+                ]
+            },
+            {
+                type: "tabset",
+                weight: 45,
+                children: [
+                    {
+                        type: "StationData",
+                        name: "Station Data",
+                        component: "StationData",
                     }
                 ]
             },
