@@ -36,9 +36,9 @@ export const Layout1:IJsonModel =  {
                 weight: 45,
                 children: [
                     {
-                        type: "StationData",
+                        type: "Initializer",
                         name: "Station Data",
-                        component: "StationData",
+                        component: "Initializer",
                     }
                 ]
             },

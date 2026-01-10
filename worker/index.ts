@@ -1,6 +1,6 @@
 import {updater} from "./updater.ts";
 import {retriever} from "./retriever.ts";
-import type {StationData} from "../types/StationData.ts";
+import type {Initializer} from "../types/Initializer.ts";
 
 // access to cloudflare dbs
 type Env = {
@@ -17,7 +17,7 @@ export default {
     // retrieve stations_table
     if(path === "/api/stations/" && method === "GET") {
         const r = retriever(env.app_db);
-        const test:StationData = {
+        const test:Initializer = {
             stations: await r.retrieveStations(),
             uCountries: await r.getUniqueCountries(),
             uOwners: await r.getUniqueOwners()

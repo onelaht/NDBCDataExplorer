@@ -1,4 +1,4 @@
-export type StationTable = {
+export type Station = {
     station_id: string;
     ttype: string;
     hull: string;

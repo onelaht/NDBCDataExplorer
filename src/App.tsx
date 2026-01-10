@@ -25,7 +25,7 @@ function AppInner() {
             return <MapLayer/>
         if(component === "Filters")
             return <Filters/>
-        if(component === "StationData")
+        if(component === "Initializer")
             return <StationData/>
         if(component === "Placeholder") {
             return <div>{node.getName()}</div>

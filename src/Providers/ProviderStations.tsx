@@ -1,16 +1,16 @@
 import React, {createContext, useContext, useMemo, useState} from "react";
 // types and interfaces
-import type {StationTable} from "../../types/StationTable.ts";
+import type {Station} from "../../types/Station.ts";
 import type {IStationsContext} from "../interfaces/IStationsContext.ts";
 
 const StationsContext = createContext<IStationsContext | null>(null);
 
 export default function ProviderStations({children}:{children: React.ReactNode}){
     // store all station data (tuples)
-    const [stations, setStations] = useState<StationTable[]>([]);
+    const [stations, setStations] = useState<Station[]>([]);
     // unique (non dup) data for country and owner type
-    const [uniqueCountries, setUniqueCountries] = useState<Array<StationTable["country_code"]>>([]);
-    const [uniqueOwners, setUniqueOwners] = useState<Array<Pick<StationTable, "code" | "owner_name">>>([]);
+    const [uniqueCountries, setUniqueCountries] = useState<Array<Station["country_code"]>>([]);
+    const [uniqueOwners, setUniqueOwners] = useState<Array<Pick<Station, "code" | "owner_name">>>([]);
     // maps for selected countries and map (used for filters)
     const [selCountries, setSelCountries] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [selOwners, setSelOwners] = useState<Map<string, boolean>>(new Map<string, boolean>());
@@ -24,7 +24,7 @@ export default function ProviderStations({children}:{children: React.ReactNode})
 
     // returns an array of filtered stations
     // - returns an empty array if no country or owner is selected
-    const filteredStations:StationTable[] = useMemo(() => {
+    const filteredStations:Station[] = useMemo(() => {
         // if no values are checked, return an empty array
         if(getCount(selCountries) < 1 && getCount(selOwners) < 1) return []
         // retrieve all stations

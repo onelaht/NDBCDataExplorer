@@ -11,10 +11,10 @@ import {useStations} from "../Providers/ProviderStations.tsx";
 // react router
 import {useNavigate} from "react-router-dom";
 // type
-import type {StationData} from "../../types/StationData.ts";
+import type {Initializer} from "../../types/Initializer.ts";
 // google svg icon
 import SupportIcon from "../SVGIcons/MUI_Support_B89230.svg"
-import type {StationTable} from "../../types/StationTable.ts";
+import type {Station} from "../../types/Station.ts";
 
 export default function MapLayer() {
     // route to specific station id
@@ -31,7 +31,7 @@ export default function MapLayer() {
             throw new Error("Failed to fetch stations.");
         }
         // get data
-        const result:StationData = await res.json();
+        const result:Initializer = await res.json();
         // assign data
         setStations(result?.stations ?? []);
         setUniqueCountries(result?.uCountries ?? []);
@@ -44,7 +44,7 @@ export default function MapLayer() {
     // - if at least 1 unique data exists, initializes map for either filter type
     // - if no unique data exists, ignores initialization
     const initSelectedValues = useCallback((c: string[],
-                                            o:Pick<StationTable, "code" | "owner_name">[]) => {
+                                            o:Pick<Station, "code" | "owner_name">[]) => {
         // if unique country data exists
         if(c.length > 0) {
             // assign as map
