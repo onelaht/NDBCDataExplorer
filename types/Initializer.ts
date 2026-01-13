@@ -1,7 +1,8 @@
-import type {Station} from "./Station.ts";
+import type {IStation} from "./IStation.ts";
+import type {IStationData} from "./IStationData.ts";
 
 export type Initializer = {
-    stations: Station[];
-    uCountries: Array<Station["country_code"]>;
-    uOwners: Array<Pick<Station, "code" | "owner_name">>
+    stations: IStation[];
+    uCountries: Array<IStationData["country_code"]>;
+    uOwners: Array<Pick<IStationData, "code" | "owner_name">>
 }
