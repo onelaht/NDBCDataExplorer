@@ -10,11 +10,12 @@ import 'leaflet/dist/leaflet.css'
 import {useStations} from "../Providers/ProviderStations.tsx";
 // react router
 import {useNavigate} from "react-router-dom";
-// type
+// types and interfaces
 import type {Initializer} from "../../types/Initializer.ts";
+import type {IStation} from "../../types/IStation.ts";
+import type {IStationData} from "../../types/IStationData.ts";
 // google svg icon
 import SupportIcon from "../SVGIcons/MUI_Support_B89230.svg"
-import type {Station} from "../../types/Station.ts";
 
 export default function MapLayer() {
     // route to specific station id
@@ -22,29 +23,12 @@ export default function MapLayer() {
     // global vars
     const {setStations, setUniqueOwners, setSelCountries,
         setSelOwners, setUniqueCountries, filteredStations} = useStations();
-    // initialize stations arr by fetching station_table db
-    const fetchStations = async() => {
-        // fetch via endpoint
-        const res = await fetch(`/api/stations/`)
-        // if unsuccessful throw error
-        if(!res.ok) {
-            throw new Error("Failed to fetch stations.");
-        }
-        // get data
-        const result:Initializer = await res.json();
-        // assign data
-        setStations(result?.stations ?? []);
-        setUniqueCountries(result?.uCountries ?? []);
-        setUniqueOwners(result?.uOwners ?? []);
-        // initialize selected values
-        initSelectedValues(result?.uCountries ?? [], result?.uOwners ?? []);
-    }
 
     // initializes country and owner filter
     // - if at least 1 unique data exists, initializes map for either filter type
     // - if no unique data exists, ignores initialization
     const initSelectedValues = useCallback((c: string[],
-                                            o:Pick<Station, "code" | "owner_name">[]) => {
+                                            o:Pick<IStationData, "code" | "owner_name">[]) => {
         // if unique country data exists
         if(c.length > 0) {
             // assign as map
@@ -70,6 +54,30 @@ export default function MapLayer() {
         }
     }, [setSelCountries, setSelOwners])
 
+    // initialize stations arr by fetching station_table db
+    const fetchStations = useCallback(async() => {
+        // fetch via endpoint
+        const res = await fetch(`/api/stations/`)
+        // if unsuccessful throw error
+        if(!res.ok) {
+            throw new Error("Failed to fetch stations.");
+        }
+        // get data
+        const result:Initializer = await res.json();
+        // assign data
+        if(result?.stations?.length > 0) {
+            const tempMap = new Map<string, IStationData>();
+            result.stations.forEach((i:IStation) => {
+                tempMap.set(i.station_id, i.data);
+            })
+            setStations(tempMap);
+        }
+        setUniqueCountries(result?.uCountries ?? []);
+        setUniqueOwners(result?.uOwners ?? []);
+        // initialize selected values
+        initSelectedValues(result?.uCountries ?? [], result?.uOwners ?? []);
+    }, [initSelectedValues, setStations, setUniqueCountries, setUniqueOwners])
+
     // mui icon for leaflet markers
     const muiMarkerIcon = L.icon({
         iconUrl:SupportIcon,
@@ -87,17 +95,17 @@ export default function MapLayer() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {filteredStations.length >= 1 && filteredStations?.map((s) => (
+            {filteredStations.size > 0 && [...filteredStations].map(([k,v]) => (
                 <Marker
                     icon={muiMarkerIcon}
-                    position={s.location as LatLngExpression}
+                    position={v.location as LatLngExpression}
                     eventHandlers={{
                         click: () => {
-                            nav(`/${s.station_id}`)
+                            nav(`/${k}`)
                         }
                     }}
                 >
-                    <Popup>Station Name: {s.station_name}</Popup>
+                    <Popup>Station Name: {k}</Popup>
                 </Marker>
             ))}
         </MapContainer>

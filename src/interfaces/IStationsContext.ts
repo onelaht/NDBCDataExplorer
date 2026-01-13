@@ -1,5 +1,4 @@
 import React from "react";
-import type {IStation} from "../../types/IStation.ts";
 import type {IStationData} from "../../types/IStationData.ts";
 
 export interface IStationsContext {
@@ -13,6 +12,6 @@ export interface IStationsContext {
     setSelCountries: React.Dispatch<React.SetStateAction<Map<IStationData["country_code"], boolean>>>;
     selOwners: Map<IStationData["owner_name"], boolean>;
     setSelOwners: React.Dispatch<React.SetStateAction<Map<IStationData["owner_name"], boolean>>>;
-    filteredStations: IStation[];
+    filteredStations: Map<string, IStationData>;
     getCount: (checks:Map<string, boolean>)=>number;
 }
