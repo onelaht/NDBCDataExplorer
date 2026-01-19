@@ -29,13 +29,11 @@ export default function ProviderStations({children}:{children: React.ReactNode})
         if(getCount(selCountries) < 1 && getCount(selOwners) < 1) return new Map<string, IStationData>();
         // retrieve all stations
         let temp = new Map<string, IStationData>(stations);
-        console.log(temp);
         // filter based on countries selected
         if(getCount(selCountries) > 0)
             temp = new Map([...temp].filter(([,v]) => {
                 return selCountries.get(v.country_code) ?? false;
             }))
-        console.log(temp);
         // filter based on owners selected
         if(getCount(selOwners) > 0)
             temp = new Map([...temp].filter(([,v]) => {
