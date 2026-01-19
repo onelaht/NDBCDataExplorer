@@ -31,41 +31,65 @@ export default function StationData() {
     }, [station])
 
     return (
-        <>
-            {stations.has(sID) ?
-                <Box sx={{m: 2, display: "flex", flexDirection: "column",justifyContent:"center", alignItems: "top", gap: 1}}>
-                    <Typography variant="h5" sx={{alignSelf: "center"}}>
-                        Station {station?.station_id.toUpperCase()}
-                    </Typography>
-                    <Accordion sx={{width: "100%"}}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                            <Typography>Metadata</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <TableContainer>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell><b>Properties</b></TableCell>
-                                            <TableCell><b>Values</b></TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {station?.data && Object.entries(station?.data as IStationData).map(([k, v]) => (
-                                            <TableRow>
-                                                <TableCell>{k}</TableCell>
-                                                <TableCell>{(v === "" || v === " ") ? "?" : v}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </AccordionDetails>
-                    </Accordion>
-                </Box>
+        <Box sx={{
+            m: 2,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "top",
+            gap: 1
+        }}>
+            {sID === "" ?
+                <Typography variant="h5" sx={{alignSelf:"center"}}>
+                    No Station Selected
+                </Typography>
                 :
-                <Typography>Station ID is invalid</Typography>
+                stations.has(sID) ?
+                    <>
+                        <Typography variant="h5" sx={{alignSelf: "center"}}>
+                            Station ID: {station?.station_id.toUpperCase()}
+                        </Typography>
+                        <Accordion sx={{width: "100%"}}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                <Typography>
+                                    Metadata
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <b>Properties</b>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <b>Values</b>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {station?.data && Object.entries(station?.data as IStationData).map(([k, v]) => (
+                                                <TableRow>
+                                                    <TableCell>
+                                                        {k}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {(v === "" || v === " ") ? "?" : v}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </AccordionDetails>
+                        </Accordion>
+                    </>
+                :
+                <Typography variant="h5" sx={{alignSelf:"center"}}>
+                    Invalid Station ID
+                </Typography>
             }
-        </>
+        </Box>
     )
 }
