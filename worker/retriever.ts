@@ -56,7 +56,8 @@ export function retriever(db:D1Database) {
                     wtmp: tup[14] === "MM" ? undefined : parseFloat(tup[14]),
                     dewp: tup[15] === "MM" ? undefined : parseFloat(tup[15]),
                     vis: tup[16] === "MM" ? undefined : parseFloat(tup[16]),
-                    ptdy: tup[17],
+                    ptdy: tup[17] === "MM" ? undefined : tup[17].includes("+")
+                        ? Math.abs(parseFloat(tup[17])) : parseFloat(tup[17]),
                     tide: tup[18] === "MM" ? undefined : parseFloat(tup[18]),
                 }
                 arr.push(col);

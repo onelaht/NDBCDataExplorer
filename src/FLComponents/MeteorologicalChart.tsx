@@ -156,6 +156,14 @@ export default function MeteorologicalChart() {
             },
             {
                 type: "line" as const,
+                label: "Pressure Tendency (hPa)",
+                borderColor: "rgb(255, 128, 64)",
+                borderWidth: 1,
+                fill: false,
+                data: meteor?.map(i => i.ptdy),
+            },
+            {
+                type: "line" as const,
                 label: "Tide (ft)",
                 borderColor: "rgb(128, 255, 128)",
                 borderWidth: 1,
