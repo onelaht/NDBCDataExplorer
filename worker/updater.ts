@@ -23,10 +23,13 @@ export function updater(db:D1Database) {
 //    helpers
 //--------------------------------
 
-// fetches station tables from JDBC
+// fetches data from NDBC
 // returns data as an array of split tuples
 async function fetchData(input:string) {
     const res = await fetch(input)
-    const text = await res.text();
-    return text.split("\n");
+    if(res.ok) {
+        const text = await res.text();
+        return text.split("\n");
+    } else
+        return [];
 }

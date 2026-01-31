@@ -38,6 +38,17 @@ export default {
         });
     }
 
+    // return meteorological data based provided station id
+    if(path === "/api/getMeteorological/" && method === "POST") {
+        const stationID = await getReqStationID(request);
+        const r = retriever(env.app_db);
+        const data = await r.getMeteorologicalData(stationID);
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: {"Context-Type": "application/json"}
+        })
+    }
+
     return new Response(null, { status: 404 });
   },
     // fetch station table via crons
@@ -46,3 +57,14 @@ export default {
         await u.updateStation();
     }
 } satisfies ExportedHandler<Env>;
+
+// extracts station id sent via client
+// - returns empty string if no data exists
+async function getReqStationID(req:Request) {
+    const contentType = req.headers.get("content-type");
+    if(contentType?.includes("application/json")) {
+        const stationID:{data: string} = await req.json();
+        return stationID?.data ?? ""
+    }
+    return "";
+}

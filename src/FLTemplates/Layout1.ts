@@ -14,7 +14,7 @@ export const Layout1:IJsonModel =  {
                     borderWidth: 300,
                 }
             ]
-        }
+        },
     ],
     layout: {
         type: "row",
@@ -36,9 +36,14 @@ export const Layout1:IJsonModel =  {
                 weight: 45,
                 children: [
                     {
-                        type: "Initializer",
+                        type: "tab",
                         name: "Station Data",
-                        component: "Initializer",
+                        component: "Station Data",
+                    },
+                    {
+                        type: "tab",
+                        name: "Meteorological (Chart)",
+                        component: "MeteorologicalChart",
                     }
                 ]
             },
