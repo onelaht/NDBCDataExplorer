@@ -1,5 +1,3 @@
-import type {IStation} from "../../types/IStation.ts";
-
 export function stations(db:D1Database) {
     // upsert tuples
     // - if station_id exists, update existing tuple
@@ -47,14 +45,5 @@ export function stations(db:D1Database) {
             await db.batch(chunk);
         }
     }
-    // returns all existing stations in stations table
-    async function getAll():Promise<IStation[]> {
-        const res = await db
-            .prepare(
-                "SELECT *" +
-                "FROM stations")
-            .all<IStation>();
-        return res?.results ?? [];
-    }
-    return {batchUpsert, getAll};
+    return {batchUpsert};
 }

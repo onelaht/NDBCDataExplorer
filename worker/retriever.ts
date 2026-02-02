@@ -1,33 +1,55 @@
 // types and interfaces
-import type {IStation} from "../types/IStation.ts";
-import type {IStationData} from "../types/IStationData.ts";
-import type {IStationTuple} from "../types/IStationTuple.ts";
 import type {IMeteorologicalData} from "../types/IMeteorologicalData";
+import type {IMapMarkers} from "../types/IMapMarkers";
+import type {IMetadata} from "../types/IMetadata";
 
 export function retriever(db:D1Database) {
-    // extract stations and normalize location
-    async function retrieveStations():Promise<IStation[]> {
-        // get all tuples from station table
-        const stations:IStation[] = await getStationsData(db);
-        // traverse through all stations and normalize location
-        stations.forEach((s) => {
-            s.data.location = normalizeLocation(s.data.location as string);
+    // get map markers
+    async function retrieveMapMarkers():Promise<IMapMarkers[]> {
+        const {results} = await db.prepare(
+            "SELECT s.station_id, s.location, so.code, so.name AS owner_name, so.country_code " +
+            "FROM stations AS s JOIN stations_owner AS so " +
+            "ON s.owner = so.code"
+        ).all<IMapMarkers>();
+        results.forEach(s => {
+            s.location = normalizeLocation(s.location as string);
         })
-        return stations;
+        return results;
     }
 
-    // retrieve unique (no dups) country code
-    async function getUniqueCountries():Promise<Array<IStationData["country_code"]>> {
-        const res = await db.prepare(
-            "SELECT DISTINCT country_code FROM stations_owner").all<IStationData["country_code"]>();
-        return res?.results ?? [];
+    // retrieves metadata for specified station id
+    async function retrieveMetadata(stationID:string):Promise<IMetadata | null> {
+        const results = await db.prepare(
+            "SELECT s.station_id, s.ttype, s.hull, s.name AS station_name, s.payload, s.location, " +
+            "s.timezone, s.forecast, so.code, so.name AS owner_name, so.country_code " +
+            "FROM stations AS s " +
+            "JOIN stations_owner AS so " +
+            "ON s.owner = so.code " +
+            `WHERE s.station_id = '${stationID}'`
+        ).first<IMetadata>();
+        if(!results) return null;
+        results.location = normalizeLocation(results.location as string);
+        return results
     }
 
-    // retrieve unique (no dups) owner data
-    async function getUniqueOwners():Promise<Array<Pick<IStationData, "code" | "owner_name">>> {
-        const res = await db.prepare(
-            "SELECT DISTINCT code, name FROM stations_owner").all<Pick<IStationData, "code" | "owner_name">>();
-        return res?.results ?? [];
+    // retrieves all unique owners from stations_owners
+    // - returns an empty array if empty or error occurs
+    async function getDistinctOwners():Promise<string[]> {
+        const results =  await db.prepare(
+            "SELECT DISTINCT name " +
+            "FROM stations_owner"
+        ).all<{name: string}>();
+        return results.results.map(i => i.name);
+    }
+
+    // retrieves all unique countries from stations_owners
+    // - returns an empty array if empty or error occurs
+    async function getDistinctCountries():Promise<string[]> {
+        const results =  await db.prepare(
+            "SELECT DISTINCT country_code " +
+            "FROM stations_owner"
+        ).all<{country_code: string}>();
+        return results.results.map(i => i.country_code);
     }
 
     // retrieve 5 day meteorological data from NDBC
@@ -65,7 +87,7 @@ export function retriever(db:D1Database) {
         }
         return arr;
     }
-    return {retrieveStations, getUniqueCountries, getUniqueOwners, getMeteorologicalData};
+    return {retrieveMapMarkers, getDistinctCountries, getDistinctOwners, getMeteorologicalData, retrieveMetadata};
 }
 
 //--------------------------------
@@ -89,33 +111,4 @@ function normalizeLocation(location:string):number[] {
     const lat = parseFloat(splitData[0]);
     const lon = parseFloat(splitData[2]);
     return [splitData[1] === "N" ? lat : -lat, splitData[3] === "E" ? lon : -lon]
-}
-
-// retrieve station owners and stations table
-async function getStationsData(db:D1Database):Promise<IStation[]> {
-    const {results} = await db.prepare(
-        "SELECT s.station_id, s.ttype, s.hull, s.name AS station_name, s.payload, s.location, " +
-        "s.timezone, s.forecast, ss.code, ss.name AS owner_name, ss.country_code " +
-        "FROM stations AS s " +
-        "JOIN stations_owner AS ss " +
-        "ON s.owner = ss.code"
-    ).all<IStationTuple>();
-
-    // retrieve and assign each tuples
-    const data:IStation[] = results.map(r => ({
-        station_id: r.station_id,
-        data: {
-            ttype: r.ttype,
-            hull: r.hull,
-            station_name: r.station_name,
-            payload: r.payload,
-            location: r.location,
-            timezone: r.timezone,
-            forecast: r.forecast,
-            code: r.code,
-            owner_name: r.owner_name,
-            country_code: r.country_code,
-        }
-    }))
-    return data ?? [];
 }

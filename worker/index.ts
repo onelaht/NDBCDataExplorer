@@ -1,6 +1,8 @@
 import {updater} from "./updater.ts";
 import {retriever} from "./retriever.ts";
-import type {Initializer} from "../types/Initializer.ts";
+import type {IMapMarkers} from "../types/IMapMarkers";
+import type {IMetadata} from "../types/IMetadata";
+import type {IFilterSet} from "../types/IFilterSet";
 
 // access to cloudflare dbs
 type Env = {
@@ -14,15 +16,35 @@ export default {
     const method = request.method;
     const path = url.pathname;
 
-    // retrieve stations_table
-    if(path === "/api/stations/" && method === "GET") {
+    // retrieve map markers
+    if(path === "/api/getMapMarkers/" && method === "GET") {
         const r = retriever(env.app_db);
-        const test:Initializer = {
-            stations: await r.retrieveStations(),
-            uCountries: await r.getUniqueCountries(),
-            uOwners: await r.getUniqueOwners()
-        }
-        return new Response(JSON.stringify(test), {
+        const data:IMapMarkers[] = await r.retrieveMapMarkers();
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: {"Context-Type": "application/json"}
+        });
+    }
+
+    // retrieve filter set
+    if(path === "/api/getFilterSet/" && method === "GET") {
+        const r = retriever(env.app_db);
+        const data:IFilterSet = {
+            distinctOwners: await r.getDistinctOwners(),
+            distinctCountries: await r.getDistinctCountries(),
+        };
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: {"Context-Type": "application/json"}
+        });
+    }
+
+    // retrieve map markers
+    if(path === "/api/getMetadata/" && method === "POST") {
+        const stationID = await getReqStationID(request);
+        const r = retriever(env.app_db);
+        const data:IMetadata|null = await r.retrieveMetadata(stationID);
+        return new Response(JSON.stringify(data), {
             status: 200,
             headers: {"Context-Type": "application/json"}
         });
