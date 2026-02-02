@@ -8,7 +8,9 @@ interface IInitializerContext {
     setMapMarkers: React.Dispatch<React.SetStateAction<IMapMarkers[]>>
     filteredMarkers: IMapMarkers[];
     distinctOwners : Set<string>;
+    setDistinctOwners: React.Dispatch<React.SetStateAction<Set<string>>>
     distinctCountries: Set<string>;
+    setDistinctCountries: React.Dispatch<React.SetStateAction<Set<string>>>;
     selCountries: Set<string>;
     setSelCountries: React.Dispatch<React.SetStateAction<Set<string>>>
     selOwners: Set<string>;
@@ -24,25 +26,9 @@ export default function ProviderInitializer({children}:{children: React.ReactNod
     const [selCountries, setSelCountries] = useState<Set<string>>(new Set<string>(["US"]));
     const [selOwners, setSelOwners] = useState<Set<string>>(new Set<string>());
     // holds all unique (non-dup) owners
-    const distinctOwners = useMemo(() => {
-        const temp = new Set<string>();
-        if(mapMarkers.length < 0) return temp;
-        mapMarkers.forEach(marker => {
-            if(!temp.has(marker.owner_name))
-                temp.add(marker.owner_name);
-        })
-        return temp;
-    }, [mapMarkers]);
+    const [distinctOwners, setDistinctOwners] = useState<Set<string>>(new Set<string>());
     // holds all unique (non-dup) countries
-    const distinctCountries = useMemo(() => {
-        const temp = new Set<string>();
-        if(mapMarkers.length < 0) return temp;
-        mapMarkers.forEach(marker => {
-            if(!temp.has(marker.country_code))
-                temp.add(marker.country_code);
-        })
-        return temp;
-    }, [mapMarkers]);
+    const [distinctCountries, setDistinctCountries] = useState<Set<string>>(new Set<string>());
     // returns the subset of mapMarkers
     // - returns an empty array if no filters are set
     const filteredMarkers = useMemo(() => {
@@ -61,8 +47,8 @@ export default function ProviderInitializer({children}:{children: React.ReactNod
     }, [selCountries, selOwners, mapMarkers]);
 
     return (
-        <InitializerContext value={{mapMarkers, setMapMarkers, filteredMarkers, distinctCountries, distinctOwners, selCountries,
-            setSelCountries, selOwners, setSelOwners}}>
+        <InitializerContext value={{mapMarkers, setMapMarkers, filteredMarkers, distinctCountries, setDistinctCountries,
+            distinctOwners, setDistinctOwners, selCountries, setSelCountries, selOwners, setSelOwners}}>
             {children}
         </InitializerContext>
     )
