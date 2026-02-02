@@ -42,6 +42,7 @@ export default function MapLayer() {
                     />
                     {filteredMarkers.map((i) => (
                         <Marker
+                            key={i.station_id}
                             icon={muiMarkerIcon}
                             position={i.location as LatLngExpression}
                             eventHandlers={{

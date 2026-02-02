@@ -26,6 +26,6 @@ export default function MapLayerLoader({setIsFetched}:{setIsFetched:React.Dispat
     }, [])
 
     return (
-        <BaseLoader label={"Loading Markers..."}/>
+        <BaseLoader label={"Retrieving Marker Data..."}/>
     )
 }
