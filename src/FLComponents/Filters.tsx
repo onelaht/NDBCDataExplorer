@@ -1,3 +1,6 @@
+// react
+import React, {useState} from "react";
+// mui components
 import {
     Box,
     Accordion,
@@ -8,94 +11,97 @@ import {
     Divider,
     FormControlLabel,
 } from "@mui/material";
+// mui icons
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {useStations} from "../Providers/ProviderStations.tsx";
-import React from "react";
+// global vars
+import {useInitializer} from "../Providers/ProviderInitializer.tsx";
+import FiltersLoader from "./Loader/FiltersLoader.tsx";
 
 export default function Filters() {
     // global vars
-    const {uniqueCountries, uniqueOwners, setSelCountries,
-           selCountries, setSelOwners, selOwners, getCount} = useStations();
-
+    const {distinctCountries, distinctOwners, selCountries, setSelCountries, selOwners,
+        setSelOwners} = useInitializer();
+    const [isFetched, setIsFetched] = useState<boolean>(false);
     // toggles selected element
-    const handleCheckbox = (key: string, checks:Map<string, boolean>,
-            handler:React.Dispatch<React.SetStateAction<Map<string, boolean>>>)=> {
+    const handleCheckbox = (value: string,
+            handler:React.Dispatch<React.SetStateAction<Set<string>>>)=> {
         // leave if element is not found
-        if(!checks.has(key)) return;
-        // inverse state of element and apply changes
         handler(prev => {
-            const temp = new Map<string, boolean>(prev);
-            temp.set(key, !checks.get(key));
+            const temp = new Set<string>(prev);
+            if(temp.has(value)) temp.delete(value);
+            else temp.add(value);
             return temp;
         })
     }
-
     // unchecks all elements from specified type
     const handleReset =
-            (handler:React.Dispatch<React.SetStateAction<Map<string, boolean>>>) => {
+            (handler:React.Dispatch<React.SetStateAction<Set<string>>>) => {
         // disables all enabled element
-        handler(prev => {
-            const temp = new Map<string, boolean>(prev);
-            for(const i of temp.keys()) {
-                if(temp.get(i)) temp.set(i, false);
-            }
-            return temp;
-        })
+        handler(new Set<string>());
     }
 
     return (
-        <Box sx={{m:1.5}}>
-            <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                    Countries ({getCount(selCountries)} Selected)
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Box sx={{display: "flex", flexDirection:"column"}}>
-                        <Button
-                            onClick={() => handleReset(setSelCountries)}
-                            disabled={getCount(selCountries) === 0}
-                            variant="outlined">Clear selection
-                        </Button>
-                        <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
-                        {uniqueCountries.length > 0 && uniqueCountries.map((i) => (
-                            <>
-                                <FormControlLabel
-                                    control={<Checkbox
-                                        onChange={() => handleCheckbox(Object.values(i)[0], selCountries, setSelCountries)}
-                                        checked={selCountries.get(Object.values(i)[0])}/>} label={Object.values(i)[0]}
-                                />
+        <>
+            {!isFetched ?
+                <FiltersLoader setIsFetched={(val) => setIsFetched(val)}/>
+            :
+                <Box sx={{m:1.5}}>
+                    <Accordion defaultExpanded sx={{m:1}}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                            Countries ({selCountries.size} Selected)
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box sx={{display: "flex", flexDirection:"column"}}>
+                                <Button
+                                    onClick={() => handleReset(setSelCountries)}
+                                    disabled={selCountries.size === 0}
+                                    variant="outlined">Clear selection
+                                </Button>
                                 <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
-                            </>
-                        ))}
-                    </Box>
-                </AccordionDetails>
-            </Accordion>
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                    Owners ({getCount(selOwners)} Selected)
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Box sx={{display: "flex", flexDirection:"column"}}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => handleReset(setSelOwners)}
-                            disabled={getCount(selOwners) === 0}
-                            >Clear selection
-                        </Button>
-                        <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
-                        {uniqueOwners.length > 0 && uniqueOwners.map((i) => (
-                            <>
-                                <FormControlLabel
-                                    control={<Checkbox
-                                        onChange={() => handleCheckbox(Object.values(i)[0], selOwners, setSelOwners)}
-                                        checked={selOwners.get(Object.values(i)[0])}/>} label={Object.values(i)[1]}
-                                />
+                                {distinctCountries.size > 0 && [...distinctCountries.values()].map((i) => (
+                                    <>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    onChange={() => handleCheckbox(i, setSelCountries)}
+                                                    checked={selCountries.has(i)}/>
+                                            }
+                                            label={i}
+                                        />
+                                        <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
+                                    </>
+                                ))}
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion defaultExpanded sx={{m:1}}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                            Owners ({selOwners.size} Selected)
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box sx={{display: "flex", flexDirection:"column"}}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => handleReset(setSelOwners)}
+                                    disabled={selOwners.size === 0}
+                                >Clear selection
+                                </Button>
                                 <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
-                            </>
-                        ))}
-                    </Box>
-                </AccordionDetails>
-            </Accordion>
-        </Box>
+                                {distinctOwners.size > 0 && [...distinctOwners.values()].map((i) => (
+                                    <>
+                                        <FormControlLabel
+                                            control={<Checkbox
+                                                onChange={() => handleCheckbox(i, setSelOwners)}
+                                                checked={selOwners.has(i)}/>} label={i}
+                                        />
+                                        <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
+                                    </>
+                                ))}
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
+                </Box>
+            }
+        </>
     )
 }

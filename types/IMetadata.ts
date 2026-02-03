@@ -1,7 +1,8 @@
-export interface IStationData {
+export interface IMetadata {
+    station_id: string;
     ttype: string;
     hull: string;
-    station_name: string;
+    name: string;
     payload: string;
     location: string | number[];
     timezone: string;

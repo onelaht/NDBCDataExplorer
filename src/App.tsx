@@ -8,17 +8,18 @@ import {TabNode} from "flexlayout-react";
 // flexlayout template
 import {Layout1} from "./FLTemplates/Layout1.ts";
 // react router
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, useLocation} from "react-router-dom";
 // split components
 import MapLayer from "./FLComponents/MapLayer.tsx";
 import ProviderApp from "./Providers/ProviderApp.tsx";
 import Filters from "./FLComponents/Filters.tsx";
-import StationData from "./FLComponents/StationData.tsx";
+import Metadata from "./FLComponents/Metadata.tsx";
 import MeteorologicalChart from "./FLComponents/MeteorologicalChart.tsx";
 
 
 function AppInner() {
     const [model] = useState<Model>(Model.fromJson(Layout1));
+    const {pathname} = useLocation();
 
     const factory = (node:TabNode) => {
         const component = node.getComponent();
@@ -26,41 +27,26 @@ function AppInner() {
             return <MapLayer/>
         if(component === "Filters")
             return <Filters/>
-        if(component === "Station Data")
-            return <StationData/>
+        if(component === "Metadata")
+            return <Metadata key={pathname}/>
         if(component === "MeteorologicalChart")
-            return <MeteorologicalChart/>
-        if(component === "Placeholder") {
-            return <div>{node.getName()}</div>
-        }
+            return <MeteorologicalChart key={pathname}/>
     }
 
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={
-                    <Layout
-                        model={model}
-                        factory={factory}
-                    />
-                }
-                />
-                <Route path="/:sID" element={
-                    <Layout
-                        model={model}
-                        factory={factory}
-                    />
-                }
-               />
-            </Routes>
-        </Router>
+        <Layout model={model} factory={factory} />
     )
 }
 
 export default function App() {
     return (
         <ProviderApp>
-            <AppInner/>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<AppInner/>} />
+                    <Route path="/:sID" element={<AppInner/>} />
+                </Routes>
+            </Router>
         </ProviderApp>
     )
 }

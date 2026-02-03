@@ -1,3 +1,6 @@
+// react
+import {useMemo, useState} from "react";
+// ChartJS componeents
 import {
     Chart as ChartJS,
     LinearScale,
@@ -10,11 +13,16 @@ import {
     LineController,
     BarController,
 } from 'chart.js';
+// react-chartjs-2 (ChartJS wrapper)
 import { Chart } from 'react-chartjs-2';
-import {Box, Typography} from "@mui/material";
-import {useLocation} from "react-router-dom";
-import {useEffect, useMemo, useState} from "react";
+// MUI components
+import {Box} from "@mui/material";
+// types and interfaces
 import type {IMeteorologicalData} from "../../types/IMeteorologicalData.ts";
+// child component
+import MeteorologicalChartLoader from "./Loader/MeteorologicalChartLoader.tsx";
+import {useLocation} from "react-router-dom";
+import PromptUser from "./Additional/PromptUser.tsx";
 
 ChartJS.register(
     LinearScale,
@@ -29,31 +37,13 @@ ChartJS.register(
 );
 
 export default function MeteorologicalChart() {
+    // get router path
     const {pathname} = useLocation();
+    // meteor data set used for chartjs
     const [meteor, setMeteor] = useState<IMeteorologicalData[]>([]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const res = await fetch('/api/getMeteorological/', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    data: pathname.substring(1),
-                })
-            });
-            if(!res.ok)
-                throw new Error(res.statusText);
-            else {
-                const data:IMeteorologicalData[] = await res.json();
-                    setMeteor(data);
-            }
-        }
-        fetchData();
-    }, [pathname]);
-
-
+    // determine if data fetch is completed
+    const [isFetched, setIsFetched] = useState(false);
+    // chartjs config
     const data = useMemo(() => {
         return {
             labels: meteor?.map(i => i.label),
@@ -181,16 +171,20 @@ export default function MeteorologicalChart() {
 
     return (
         <>
-                {meteor?.length > 0 ?
+            {!isFetched ?
+                <MeteorologicalChartLoader
+                    setMeteor={(val) => setMeteor(val)}
+                    setIsFetched={(val) => setIsFetched(val)} />
+            :
+                pathname === "/" ?
+                    <PromptUser label={"No station selected"}/>
+            :
+                meteor?.length > 0 ?
                     <Box sx={{display: "flex", width: "100%", height: "100%"}}>
                         <Chart type='line' data={data} options={options} />
                     </Box>
-                :
-                    <Box sx={{display: "flex", justifyContent: "center"}}>
-                        <Typography variant="h5">
-                            No meteorological data found
-                        </Typography>
-                    </Box>
+                    :
+                    <PromptUser label={"No meteorological data found"}/>
             }
         </>
     )

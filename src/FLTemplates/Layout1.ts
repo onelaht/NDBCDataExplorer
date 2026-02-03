@@ -18,11 +18,10 @@ export const Layout1:IJsonModel =  {
     ],
     layout: {
         type: "row",
-        weight: 100,
         children: [
             {
                 type: "tabset",
-                weight: 55,
+                weight: 50,
                 children: [
                     {
                         type: "tab",
@@ -32,18 +31,30 @@ export const Layout1:IJsonModel =  {
                 ]
             },
             {
-                type: "tabset",
-                weight: 45,
+                type: "row",
+                weight: 50,
                 children: [
                     {
-                        type: "tab",
-                        name: "Station Data",
-                        component: "Station Data",
+                        type: "tabset",
+                        weight: 50,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Metadata",
+                                component: "Metadata",
+                            }
+                        ]
                     },
                     {
-                        type: "tab",
-                        name: "Meteorological (Chart)",
-                        component: "MeteorologicalChart",
+                        type: "tabset",
+                        weight: 50,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Meteorological (Chart)",
+                                component: "MeteorologicalChart",
+                            }
+                        ]
                     }
                 ]
             },
