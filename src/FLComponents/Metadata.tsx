@@ -59,7 +59,7 @@ export default function Metadata() {
                             </TableHead>
                             <TableBody>
                                     {Object.entries(metadata)?.map(([k, v]) => (
-                                        <TableRow>
+                                        <TableRow key={k}>
                                             <TableCell>{pretty(k)}</TableCell>
                                             <TableCell>{v}</TableCell>
                                         </TableRow>
