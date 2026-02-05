@@ -2,6 +2,7 @@
 import type {IMeteorologicalData} from "../types/IMeteorologicalData";
 import type {IMapMarkers} from "../types/IMapMarkers";
 import type {IMetadata} from "../types/IMetadata";
+import type {IDataSet} from "../types/IDataSet";
 
 export function retriever(db:D1Database) {
     // get map markers
@@ -52,6 +53,16 @@ export function retriever(db:D1Database) {
         return results.results.map(i => i.country_code);
     }
 
+    // retrieves all existing datatypes per station
+    // - returns an empty array if empty or error occurs
+    async function getDatatypes():Promise<IDataSet[]> {
+        const results = await db.prepare(
+            "SELECT * " +
+            "FROM stations_datatype"
+        ).all<IDataSet>();
+        return results.results ?? [];
+    }
+
     // retrieve 5 day meteorological data from NDBC
     // - returns an empty array if no data is found
     async function getMeteorologicalData(stationID: string):Promise<IMeteorologicalData[]> {
@@ -87,7 +98,8 @@ export function retriever(db:D1Database) {
         }
         return arr;
     }
-    return {retrieveMapMarkers, getDistinctCountries, getDistinctOwners, getMeteorologicalData, retrieveMetadata};
+    return {retrieveMapMarkers, getDistinctCountries, getDistinctOwners, getMeteorologicalData,
+            getDatatypes, retrieveMetadata};
 }
 
 //--------------------------------

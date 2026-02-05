@@ -3,6 +3,7 @@ import {retriever} from "./retriever.ts";
 import type {IMapMarkers} from "../types/IMapMarkers";
 import type {IMetadata} from "../types/IMetadata";
 import type {IFilterSet} from "../types/IFilterSet";
+import type {IDataSet} from "../types/IDataSet";
 
 // access to cloudflare dbs
 type Env = {
@@ -44,6 +45,15 @@ export default {
         const stationID = await getReqStationID(request);
         const r = retriever(env.app_db);
         const data:IMetadata|null = await r.retrieveMetadata(stationID);
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: {"Context-Type": "application/json"}
+        });
+    }
+
+    if(path === "/api/getDatatypes/" && method === "GET") {
+        const r = retriever(env.app_db);
+        const data:IDataSet[] = await r.getDatatypes();
         return new Response(JSON.stringify(data), {
             status: 200,
             headers: {"Context-Type": "application/json"}
