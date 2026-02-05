@@ -1,5 +1,3 @@
-DROP Table IF EXISTS stations_owner;
-
 CREATE TABLE IF NOT EXISTS stations (
     station_id TEXT PRIMARY KEY,
     owner TEXT,
@@ -19,4 +17,20 @@ CREATE TABLE IF NOT EXISTS stations_owner (
     name TEXT,
     country_code TEXT,
     last_updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS stations_datatype (
+     station_id TEXT PRIMARY KEY,
+     adcp INTEGER,
+     cwind INTEGER,
+     dart INTEGER,
+     drift INTEGER,
+     ocean INTEGER,
+     rain INTEGER,
+     spec INTEGER,
+     spectral INTEGER,
+     srad INTEGER,
+     supl INTEGER,
+     txt INTEGER,
+     last_updated TIMESTAMP
 );
