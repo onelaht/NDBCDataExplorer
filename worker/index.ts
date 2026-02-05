@@ -54,6 +54,7 @@ export default {
     if(path === "/api/crons/" && method === "GET") {
         const d = updater(env.app_db)
         await d.updateStation();
+        await d.updateListOfData();
         return new Response(JSON.stringify("k"), {
             status: 200,
             headers: {"Context-Type": "application/json"}
@@ -77,6 +78,7 @@ export default {
     async scheduled(_controller:ScheduledController, env:Env) {
         const u = updater(env.app_db)
         await u.updateStation();
+        await u.updateListOfData();
     }
 } satisfies ExportedHandler<Env>;
 
