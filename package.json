@@ -17,6 +17,7 @@
 		"@mui/icons-material": "^7.3.5",
 		"@mui/material": "^7.3.5",
 		"chart.js": "^4.5.1",
+		"cheerio": "^1.2.0",
 		"flexlayout-react": "^0.8.17",
 		"leaflet": "^1.9.4",
 		"lodash": "^4.17.21",

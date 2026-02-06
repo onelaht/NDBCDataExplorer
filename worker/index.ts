@@ -3,6 +3,7 @@ import {retriever} from "./retriever.ts";
 import type {IMapMarkers} from "../types/IMapMarkers";
 import type {IMetadata} from "../types/IMetadata";
 import type {IFilterSet} from "../types/IFilterSet";
+import type {IDataSet} from "../types/IDataSet";
 
 // access to cloudflare dbs
 type Env = {
@@ -50,10 +51,20 @@ export default {
         });
     }
 
+    if(path === "/api/getDatatypes/" && method === "GET") {
+        const r = retriever(env.app_db);
+        const data:IDataSet[] = await r.getDatatypes();
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: {"Context-Type": "application/json"}
+        });
+    }
+
     // local debug
     if(path === "/api/crons/" && method === "GET") {
         const d = updater(env.app_db)
         await d.updateStation();
+        await d.updateListOfData();
         return new Response(JSON.stringify("k"), {
             status: 200,
             headers: {"Context-Type": "application/json"}
@@ -77,6 +88,7 @@ export default {
     async scheduled(_controller:ScheduledController, env:Env) {
         const u = updater(env.app_db)
         await u.updateStation();
+        await u.updateListOfData();
     }
 } satisfies ExportedHandler<Env>;
 
