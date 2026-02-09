@@ -18,6 +18,9 @@ export default function MapLayerLoader({setIsFetched}:{setIsFetched:React.Dispat
             return;
         }
         const data:IMapMarkers[] = await res.json();
+        // convert str arr to set
+        data.forEach(i => {i.datatypes = new Set<string>(i.datatypes)})
+        // update map marker global var
         setMapMarkers(data);
     }, [setMapMarkers]);
     // execute fetchData
