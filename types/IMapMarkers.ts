@@ -4,4 +4,5 @@ export interface IMapMarkers {
     code: string;
     owner_name: string;
     country_code: string;
+    datatypes: string[] | Set<string>;
 }
