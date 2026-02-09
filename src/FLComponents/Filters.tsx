@@ -19,8 +19,8 @@ import FiltersLoader from "./Loader/FiltersLoader.tsx";
 
 export default function Filters() {
     // global vars
-    const {distinctCountries, distinctOwners, selCountries, setSelCountries, selOwners,
-        setSelOwners} = useInitializer();
+    const {distinctCountries, distinctOwners, distinctDatatypes, selCountries, setSelCountries, selOwners, selDatatypes,
+        setSelDatatypes, setSelOwners} = useInitializer();
     const [isFetched, setIsFetched] = useState<boolean>(false);
     // toggles selected element
     const handleCheckbox = (value: string,
@@ -93,6 +93,32 @@ export default function Filters() {
                                             control={<Checkbox
                                                 onChange={() => handleCheckbox(i, setSelOwners)}
                                                 checked={selOwners.has(i)}/>} label={i}
+                                        />
+                                        <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
+                                    </>
+                                ))}
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion defaultExpanded sx={{m:1}}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                            Datatypes ({selDatatypes.size} Selected)
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box sx={{display: "flex", flexDirection:"column"}}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => handleReset(setSelDatatypes)}
+                                    disabled={selDatatypes.size === 0}
+                                >Clear selection
+                                </Button>
+                                <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
+                                {distinctDatatypes.size > 0 && [...distinctDatatypes.values()].map((i) => (
+                                    <>
+                                        <FormControlLabel
+                                            control={<Checkbox
+                                                onChange={() => handleCheckbox(i, setSelDatatypes)}
+                                                checked={selDatatypes.has(i)}/>} label={i}
                                         />
                                         <Divider sx={{mt: 1, mb: 1}} orientation="horizontal"/>
                                     </>
