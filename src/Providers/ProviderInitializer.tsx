@@ -42,7 +42,7 @@ export default function ProviderInitializer({children}:{children: React.ReactNod
         // get all stations
         let temp = [...mapMarkers];
         // if no filters are set, return all map markers
-        if(selCountries.size === 0 && selOwners.size === 0)
+        if(selCountries.size === 0 && selOwners.size === 0 && selDatatypes.size == 0)
             return [];
         // filter stations based on selected countries
         if(selCountries.size > 0)
@@ -57,6 +57,7 @@ export default function ProviderInitializer({children}:{children: React.ReactNod
                 const s = new Set<string>(i.datatypes);
                 // determine if selDatatypes is subset of station's datatype
                 for(const i of selDatatypes) {
+                    console.log(s);
                     if(!s.has(i)) return false;
                 }
                 return true;
