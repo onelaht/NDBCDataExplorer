@@ -58,12 +58,19 @@ export function retriever(db:D1Database) {
 
     // retrieves all existing datatypes per station
     // - returns an empty array if empty or error occurs
-    async function getDatatypes():Promise<IDataSet[]> {
-        const results = await db.prepare(
-            "SELECT * " +
-            "FROM stations_datatype"
-        ).all<IDataSet>();
-        return results.results ?? [];
+    async function getStationDatatype(stationID:string):Promise<string[]> {
+        const result = await db.prepare(
+            "SELECT station_id, adcp, cwind, dart, drift, ocean, rain, spec, spectral, srad, supl, txt " +
+            "FROM stations_datatype " +
+            "WHERE station_id = " + `"${stationID}"`
+        ).first<IDataSet>();
+        if(!result) return [];
+        const arr:string[] = [];
+        Object.entries(result).forEach(([key, value]:[string, number]) => {
+            if(value === 1)
+                arr.push(key);
+        })
+        return arr;
     }
 
     // retrieve 5 day meteorological data from NDBC
@@ -102,7 +109,7 @@ export function retriever(db:D1Database) {
         return arr;
     }
     return {retrieveMapMarkers, getDistinctCountries, getDistinctOwners, getMeteorologicalData,
-            getDatatypes, retrieveMetadata};
+            getStationDatatype, retrieveMetadata};
 }
 
 //--------------------------------
