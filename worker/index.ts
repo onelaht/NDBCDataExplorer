@@ -3,7 +3,6 @@ import {retriever} from "./retriever.ts";
 import type {IMapMarkers} from "../types/IMapMarkers";
 import type {IMetadata} from "../types/IMetadata";
 import type {IFilterSet} from "../types/IFilterSet";
-import type {IDataSet} from "../types/IDataSet";
 
 // access to cloudflare dbs
 type Env = {
@@ -51,10 +50,11 @@ export default {
         });
     }
 
-    if(path === "/api/getDatatypes/" && method === "GET") {
+    // retrieve avail datatype based on specified station id
+    if(path === "/api/getDatatype/" && method === "POST") {
+        const stationID = await getReqStationID(request);
         const r = retriever(env.app_db);
-        const data:IDataSet[] = await r.getDatatypes();
-        return new Response(JSON.stringify(data), {
+        return new Response(JSON.stringify(await r.getStationDatatype(stationID)), {
             status: 200,
             headers: {"Context-Type": "application/json"}
         });
