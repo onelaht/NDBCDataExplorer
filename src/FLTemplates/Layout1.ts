@@ -2,37 +2,42 @@ import type {IJsonModel} from "flexlayout-react";
 
 export const Layout1:IJsonModel =  {
     global: {},
-    borders: [
-        {
-            type: "border",
-            location: "left",
-            children: [
-                {
-                    type: "tab",
-                    name: "Filters",
-                    component: "Filters",
-                    borderWidth: 300,
-                }
-            ]
-        },
-    ],
+    borders: [],
     layout: {
         type: "row",
         children: [
             {
                 type: "tabset",
-                weight: 50,
+                weight: 15,
                 children: [
                     {
                         type: "tab",
-                        name: "Map",
-                        component: "Map",
+                        name: "Filters",
+                        component: "Filters",
+                        borderWidth: 300,
                     }
                 ]
             },
             {
                 type: "row",
                 weight: 50,
+                children: [
+                    {
+                        type: "tabset",
+                        weight: 100,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Map",
+                                component: "Map",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                type: "row",
+                weight: 35,
                 children: [
                     {
                         type: "tabset",
@@ -51,8 +56,8 @@ export const Layout1:IJsonModel =  {
                         children: [
                             {
                                 type: "tab",
-                                name: "Meteorological (Chart)",
-                                component: "MeteorologicalChart",
+                                name: "Dataset Chart",
+                                component: "DatasetChart",
                             }
                         ]
                     }
