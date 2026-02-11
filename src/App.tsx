@@ -14,8 +14,7 @@ import MapLayer from "./FLComponents/MapLayer.tsx";
 import ProviderApp from "./Providers/ProviderApp.tsx";
 import Filters from "./FLComponents/Filters.tsx";
 import Metadata from "./FLComponents/Metadata.tsx";
-import MeteorologicalChart from "./FLComponents/MeteorologicalChart.tsx";
-
+import DatasetChart from "./FLComponents/DatasetChart";
 
 function AppInner() {
     const [model] = useState<Model>(Model.fromJson(Layout1));
@@ -29,8 +28,8 @@ function AppInner() {
             return <Filters/>
         if(component === "Metadata")
             return <Metadata key={pathname}/>
-        if(component === "MeteorologicalChart")
-            return <MeteorologicalChart key={pathname}/>
+        if(component === "DatasetChart")
+            return <DatasetChart key={pathname}/>
     }
 
     return (
