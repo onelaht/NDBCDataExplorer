@@ -37,13 +37,13 @@ export default function Metadata() {
 
     return (
         <>
-            {!isFetched ?
-                <MetadataLoader
-                    setMetadata={val => setMetadata(val)}
-                    setIsFetched={val => setIsFetched(val)}/>
+            {pathname === "/" ?
+                <PromptUser label={"No station selected"}/>
             :
-                pathname === "/" ?
-                    <PromptUser label={"No station selected"}/>
+                !isFetched ?
+                    <MetadataLoader
+                        setMetadata={val => setMetadata(val)}
+                        setIsFetched={val => setIsFetched(val)}/>
             :
                 !metadata ?
                     <PromptUser label={"No metadata found"}/>

@@ -15,7 +15,7 @@ export default function MetadataLoader({setMetadata, setIsFetched}:
             {
                 method: "POST",
                 headers: {"content-type": "application/json"},
-                body: JSON.stringify({data: path})
+                body: JSON.stringify({stationID: path})
             });
         if(!res.ok)  {
             console.error("Could not fetch metadata.", res.status);
