@@ -1,0 +1,44 @@
+// react
+import React, {useCallback, useEffect} from "react";
+// types and interfaces
+import type {IOceanData} from "../../../../types/IOceanData.ts";
+// react router (get router path)
+import {useLocation} from "react-router-dom";
+// child component
+import BaseLoader from "../BaseLoader.tsx";
+
+export default function OceanographicChartLoader({setTypeData, setIsFetched}:
+    {setTypeData: React.Dispatch<React.SetStateAction<IOceanData[]>>,
+     setIsFetched:React.Dispatch<React.SetStateAction<boolean>>}) {
+    // get router path
+    const {pathname} = useLocation();
+
+    // retrieve meteor. data via backend
+    const fetchData = useCallback(async () => {
+        const res = await fetch('/api/getOCEAN/', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                stationID: pathname.substring(1),
+            })
+        });
+        if (!res.ok)
+            throw new Error(res.statusText);
+        else {
+            const data: IOceanData[] = await res.json();
+            setTypeData(data);
+        }
+    }, [pathname, setTypeData])
+
+    useEffect(() => {
+        fetchData().then(() => setIsFetched(true));
+    }, []);
+
+    return (
+        <>
+            <BaseLoader label={"Retrieving data..."}/>
+        </>
+    )
+}
