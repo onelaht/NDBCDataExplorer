@@ -2,7 +2,7 @@ export interface IOceanData {
     label: string;
     depth: number;
     otmp: number;
-    cond: number;
+    cond: number | undefined;
     sal: number;
     o2: number | undefined;
     o2ppm: number | undefined;
