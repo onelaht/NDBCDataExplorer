@@ -1,14 +1,19 @@
 // types and interfaces
-import type {IMeteorologicalData} from "../types/IMeteorologicalData";
 import type {IMapMarkersFlat} from "../types/IMapMarkersFlat";
 import type {IMapMarkers} from "../types/IMapMarkers";
 import type {IMetadata} from "../types/IMetadata";
 import type {IDataSet} from "../types/IDataSet";
 
-export function retriever(db:D1Database) {
+export class Retriever {
+    private db:D1Database;
+
+    constructor(db:D1Database) {
+        this.db = db;
+    }
+
     // get map markers
-    async function retrieveMapMarkers():Promise<IMapMarkers[]> {
-        const {results} = await db.prepare(
+    public async retrieveMapMarkers():Promise<IMapMarkers[]> {
+        const {results} = await this.db.prepare(
             "SELECT s.station_id, s.location, so.code, so.name AS owner_name, so.country_code, " +
             "sd.adcp, sd.cwind, sd.dart, sd.drift, sd.ocean, sd.rain, sd.spec, sd.spectral, " +
             "sd.srad, sd.supl, sd.txt " +
@@ -22,8 +27,8 @@ export function retriever(db:D1Database) {
     }
 
     // retrieves metadata for specified station id
-    async function retrieveMetadata(stationID:string):Promise<IMetadata | null> {
-        const results = await db.prepare(
+    public async retrieveMetadata(stationID:string):Promise<IMetadata | null> {
+        const results = await this.db.prepare(
             "SELECT s.station_id, s.ttype, s.hull, s.name AS station_name, s.payload, s.location, " +
             "s.timezone, s.forecast, so.code, so.name AS owner_name, so.country_code " +
             "FROM stations AS s " +
@@ -38,8 +43,8 @@ export function retriever(db:D1Database) {
 
     // retrieves all unique owners from stations_owners
     // - returns an empty array if empty or error occurs
-    async function getDistinctOwners():Promise<string[]> {
-        const results =  await db.prepare(
+    public async getDistinctOwners():Promise<string[]> {
+        const results =  await this.db.prepare(
             "SELECT DISTINCT name " +
             "FROM stations_owner"
         ).all<{name: string}>();
@@ -48,8 +53,8 @@ export function retriever(db:D1Database) {
 
     // retrieves all unique countries from stations_owners
     // - returns an empty array if empty or error occurs
-    async function getDistinctCountries():Promise<string[]> {
-        const results =  await db.prepare(
+    public async getDistinctCountries():Promise<string[]> {
+        const results =  await this.db.prepare(
             "SELECT DISTINCT country_code " +
             "FROM stations_owner"
         ).all<{country_code: string}>();
@@ -58,8 +63,8 @@ export function retriever(db:D1Database) {
 
     // retrieves all existing datatypes per station
     // - returns an empty array if empty or error occurs
-    async function getStationDatatype(stationID:string):Promise<string[]> {
-        const result = await db.prepare(
+    public async getStationDatatype(stationID:string):Promise<string[]> {
+        const result = await this.db.prepare(
             "SELECT station_id, adcp, cwind, dart, drift, ocean, rain, spec, spectral, srad, supl, txt " +
             "FROM stations_datatype " +
             "WHERE station_id = " + `"${stationID}"`
@@ -72,75 +77,26 @@ export function retriever(db:D1Database) {
         })
         return arr;
     }
-
-    // retrieve 5 day meteorological data from NDBC
-    // - returns an empty array if no data is found
-    async function getMeteorologicalData(stationID: string):Promise<IMeteorologicalData[]> {
-        const arr:IMeteorologicalData[] = []
-        // get data
-        const req = await fetchData(`https://www.ndbc.noaa.gov/data/5day2/${stationID}_5day.txt`);
-        // return empty arr if empty
-        if(req.length > 2) {
-            for (let i = req.length - 2; i > 3; i--) {
-                // split attributes (based on tab or space)
-                const tup = req[i].split(/\s+/);
-                // push data
-                const col:IMeteorologicalData = {
-                    label: `${tup[0]}-${tup[1]}-${tup[2]}-${tup[3]}-${tup[4]}-${tup[5]}`,
-                    wdir: parseInt(tup[5]),
-                    wspd: parseFloat(tup[6]),
-                    gst: tup[7] === "MM" ? undefined : parseFloat(tup[7]),
-                    wvht: tup[8] === "MM" ? undefined : parseFloat(tup[8]),
-                    dpd: tup[9] === "MM" ? undefined : parseFloat(tup[9]),
-                    apd: tup[10] === "MM" ? undefined : parseFloat(tup[10]),
-                    mwd: tup[11] === "MM" ? undefined : parseFloat(tup[11]),
-                    pres: tup[12] === "MM" ? undefined : parseFloat(tup[12]),
-                    atmp: tup[13] === "MM" ? undefined : parseFloat(tup[13]),
-                    wtmp: tup[14] === "MM" ? undefined : parseFloat(tup[14]),
-                    dewp: tup[15] === "MM" ? undefined : parseFloat(tup[15]),
-                    vis: tup[16] === "MM" ? undefined : parseFloat(tup[16]),
-                    ptdy: tup[17] === "MM" ? undefined : tup[17].includes("+")
-                        ? Math.abs(parseFloat(tup[17])) : parseFloat(tup[17]),
-                    tide: tup[18] === "MM" ? undefined : parseFloat(tup[18]),
-                }
-                arr.push(col);
-            }
-        }
-        return arr;
-    }
-    return {retrieveMapMarkers, getDistinctCountries, getDistinctOwners, getMeteorologicalData,
-            getStationDatatype, retrieveMetadata};
 }
 
 //--------------------------------
 //    helpers
 //--------------------------------
 
-// fetches data from NDBC
-// returns data as an array of split tuples
-async function fetchData(input:string) {
-    const res = await fetch(input)
-    if(res.ok) {
-        const text = await res.text();
-        return text.split("\n");
-    } else
-        return [];
-}
-
+// insert datasets attributes to string array type
 function convertFlatType(data:IMapMarkersFlat[]) {
     const temp:IMapMarkers[] = [];
     const datatypes: Set<string> = new Set(["adcp", "cwind", "dart", "drift", "drift", "ocean", "rain", "spec",
         "spectral", "srad", "supl", "txt"]);
     if(data.length < 1) return temp;
     data.forEach(i => {
-        //
         const s:string[] = [];
-        //
+        // assign existing types to array
         Object.entries(i).forEach(([key, value]:[string, number]) => {
             if(datatypes.has(key) && value === 1)
                 s.push(key);
         })
-        //
+        // create tuple type
         const tuple:IMapMarkers = {
             station_id: i.station_id,
             location: i.location,
@@ -152,7 +108,6 @@ function convertFlatType(data:IMapMarkersFlat[]) {
         temp.push(tuple);
     })
     return temp;
-
 }
 
 // convert location to lat/lon
