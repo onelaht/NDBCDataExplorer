@@ -5,8 +5,8 @@ export interface IWaveSummaryData {
     swp: number;
     wwh: number;
     wwp: number;
-    swd: number;
-    wwd: number;
+    swd: string;
+    wwd: string;
     steepness: string;
     apd: number;
     mwd: number;

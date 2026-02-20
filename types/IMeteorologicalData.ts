@@ -1,7 +1,7 @@
 export interface IMeteorologicalData {
     label: string;
-    wdir: number;
-    wspd: number;
+    wdir: number | undefined;
+    wspd: number | undefined;
     gst: number | undefined;
     wvht: number | undefined;
     dpd: number | undefined;

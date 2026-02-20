@@ -1,9 +1,9 @@
 export interface IMeteorologicalDriftData {
     label: string;
-    lat: number;
-    lon: number;
-    wdir: number;
-    wspd: number;
+    lat: number | undefined;
+    lon: number | undefined;
+    wdir: number | undefined;
+    wspd: number | undefined;
     gst: number | undefined;
     pres: number | undefined;
     ptdy: number | undefined;
