@@ -18,11 +18,11 @@ import { Chart } from 'react-chartjs-2';
 // MUI components
 import {Box} from "@mui/material";
 // types and interfaces
-import type {IMeteorologicalData} from "../../types/IMeteorologicalData.ts";
+import type {IMeteorologicalData} from "../../../types/IMeteorologicalData.ts";
 // child component
-import MeteorologicalChartLoader from "./Loader/MeteorologicalChartLoader.tsx";
+import MeteorologicalChartLoader from "../Loader/ChartLoader/MeteorologicalChartLoader.tsx";
 import {useLocation} from "react-router-dom";
-import PromptUser from "./Additional/PromptUser.tsx";
+import PromptUser from "../Additional/PromptUser.tsx";
 
 ChartJS.register(
     LinearScale,
@@ -171,20 +171,20 @@ export default function MeteorologicalChart() {
 
     return (
         <>
-            {!isFetched ?
-                <MeteorologicalChartLoader
-                    setMeteor={(val) => setMeteor(val)}
-                    setIsFetched={(val) => setIsFetched(val)} />
-            :
-                pathname === "/" ?
-                    <PromptUser label={"No station selected"}/>
-            :
-                meteor?.length > 0 ?
-                    <Box sx={{display: "flex", width: "100%", height: "100%"}}>
-                        <Chart type='line' data={data} options={options} />
-                    </Box>
+            {pathname === "/" ?
+                <PromptUser label={"No station selected"}/>
+            : !isFetched ?
+                        <MeteorologicalChartLoader
+                            setTypeData={(val) => setMeteor(val)}
+                            setIsFetched={(val) => setIsFetched(val)} />
                     :
-                    <PromptUser label={"No meteorological data found"}/>
+                        meteor?.length > 0 ?
+                                <Box sx={{display: "flex", width: "100%", height: "100%"}}>
+                                    <Chart type='line' data={data} options={options} />
+                                </Box>
+                            :
+                                <PromptUser label={"No meteorological data found"}/>
+
             }
         </>
     )

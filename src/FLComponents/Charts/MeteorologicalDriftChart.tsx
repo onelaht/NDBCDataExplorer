@@ -22,7 +22,7 @@ import type {IMeteorologicalDriftData} from "../../../types/IMeteorologicalDrift
 // child component
 import {useLocation} from "react-router-dom";
 import PromptUser from "../Additional/PromptUser.tsx";
-import MeteorologicalDriftChartLoader from "../Loader/MeteorologicalDriftChartLoader.tsx";
+import MeteorologicalDriftChartLoader from "../Loader/ChartLoader/MeteorologicalDriftChartLoader.tsx";
 
 ChartJS.register(
     LinearScale,
@@ -36,7 +36,7 @@ ChartJS.register(
     BarController
 );
 
-export default function MeteorologicalChart() {
+export default function MeteorologicalDriftChart() {
     // get router path
     const {pathname} = useLocation();
     // meteor data set used for chartjs
@@ -167,7 +167,7 @@ export default function MeteorologicalChart() {
                 <PromptUser label={"No station selected"}/>
             : !isFetched ?
                         <MeteorologicalDriftChartLoader
-                            setData={(val) => setData(val)}
+                            setTypeData={(val) => setData(val)}
                             setIsFetched={(val) => setIsFetched(val)} />
                     :
                         data?.length > 0 ?
